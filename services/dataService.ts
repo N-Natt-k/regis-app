@@ -22,7 +22,7 @@ export const registerStudent = async (data: Omit<StudentData, 'role' | 'isCoreLe
   const querySnapshot = await getDocs(q);
   
   if (!querySnapshot.empty) {
-    throw new Error(`รหัสนักเรียน ${data.studentId} นี้ลงทะเบียนไปแล้ว`);
+    throw new Error("รหัสนักเรียนนี้ลงทะเบียนไปแล้ว");
   }
 
   const newStudent: StudentData = {
@@ -30,7 +30,7 @@ export const registerStudent = async (data: Omit<StudentData, 'role' | 'isCoreLe
     role: UserRole.STUDENT,
     isCoreLeader: false,
     isCommittee: false,
-    academicYear: data.academicYear || "" // Use provided year or empty
+    academicYear: "" // Will be set on first profile update/check
   };
 
   return await addDoc(collection(db, "users"), newStudent);
@@ -55,14 +55,6 @@ export const loginStudent = async (studentId: string, phone: string): Promise<St
 export const getAllStudents = async (): Promise<StudentData[]> => {
   const querySnapshot = await getDocs(collection(db, "users"));
   return querySnapshot.docs.map(d => ({ id: d.id, ...d.data() } as StudentData));
-};
-
-export const getStudentByStdId = async (studentId: string): Promise<StudentData | null> => {
-  const q = query(collection(db, "users"), where("studentId", "==", studentId));
-  const querySnapshot = await getDocs(q);
-  if (querySnapshot.empty) return null;
-  const docData = querySnapshot.docs[0];
-  return { id: docData.id, ...docData.data() } as StudentData;
 };
 
 export const updateStudent = async (id: string, data: Partial<StudentData>) => {
