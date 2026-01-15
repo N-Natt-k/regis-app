@@ -22,6 +22,7 @@ export interface StudentData {
   room: string;
   phone: string;
   role: UserRole;
+  academicYear?: string; // e.g. "2567"
   
   // Application Statuses
   isCoreLeader: boolean; // สมัครนักเรียนแกนนำแล้วหรือยัง
@@ -46,6 +47,26 @@ export interface SystemConfig {
   quotaPerRoom?: number; // For core leaders
   allowedGrades?: GradeLevel[]; // For committee
   externalLink?: string; // For 1 Classroom 1 Project
+}
+
+export interface SystemSettings {
+  id?: string;
+  currentAcademicYear: string;
+}
+
+export interface Project {
+  id?: string;
+  academicYear: string;
+  grade: GradeLevel;
+  room: string;
+  name: string;
+  moralPrinciple: string;
+  advisors: string;
+  members: string; // Text field for member names
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  submissionDate: string;
+  imageLink?: string;
+  docLink?: string;
 }
 
 export interface Announcement {

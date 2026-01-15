@@ -8,6 +8,7 @@ interface AuthContextType {
   role: UserRole | null;
   isLoading: boolean;
   loginAsStudent: (student: StudentData) => void;
+  updateProfile: (data: Partial<StudentData>) => void;
   logout: () => void;
 }
 
@@ -29,12 +30,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         setRole(UserRole.ADMIN);
       } else {
-        // Only clear if not logged in as student (since Firebase Auth is for admins only in this setup)
-        // However, mixing the two means we need to be careful.
-        // If we are logged in as student, firebaseUser will be null, but we shouldn't wipe student state unless intended.
-        // For simplicity, if firebase auth is null, we check local storage or session for student,
-        // OR we just rely on the manual login functions.
-        // BUT, onAuthStateChanged fires on load. 
         if (role !== UserRole.STUDENT) {
             setCurrentUser(null);
             setRole(null);
@@ -49,6 +44,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(student);
     setRole(UserRole.STUDENT);
     localStorage.setItem('student_session', JSON.stringify(student));
+  };
+
+  const updateProfile = (data: Partial<StudentData>) => {
+    if (role === UserRole.STUDENT && currentUser) {
+      const updatedUser = { ...currentUser, ...data } as StudentData;
+      setCurrentUser(updatedUser);
+      localStorage.setItem('student_session', JSON.stringify(updatedUser));
+    }
   };
 
   const logout = async () => {
@@ -75,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [currentUser, isLoading]);
 
   return (
-    <AuthContext.Provider value={{ currentUser, role, isLoading, loginAsStudent, logout }}>
+    <AuthContext.Provider value={{ currentUser, role, isLoading, loginAsStudent, updateProfile, logout }}>
       {children}
     </AuthContext.Provider>
   );
